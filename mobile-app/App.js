@@ -65,7 +65,7 @@ const AppNav = () => {
           <>
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Register" component={RegisterScreen} />
-          </Stack.Navigator>
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>
@@ -81,7 +81,12 @@ export default function App() {
   });
 
   if (!fontsLoaded) {
-    return <View style={{ flex: 1, backgroundColor: '#fff' }} />;
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+        <ActivityIndicator size="large" color="#1F88E5" />
+        <Text style={{ marginTop: 20 }}>Loading Fonts...</Text>
+      </View>
+    );
   }
 
   return (
