@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, View, Text } from 'react-native';
@@ -13,9 +14,30 @@ import AddExpenseScreen from './screens/AddExpenseScreen';
 import EditExpenseScreen from './screens/EditExpenseScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import EditProfileScreen from './screens/EditProfileScreen';
+import StatisticsScreen from './screens/StatisticsScreen';
 import { theme } from './theme';
 
 const Stack = createStackNavigator();
+const Drawer = createDrawerNavigator();
+
+const HomeDrawer = () => {
+  return (
+    <Drawer.Navigator screenOptions={{
+      headerShown: false,
+      drawerActiveTintColor: theme.colors.primary,
+      drawerInactiveTintColor: theme.colors.textSecondary,
+      drawerLabelStyle: { fontFamily: 'Poppins_500Medium' }
+    }}>
+      <Drawer.Screen
+        name="Dashboard"
+        component={DashboardScreen}
+        options={{ title: 'Home' }}
+      />
+      <Drawer.Screen name="Statistics" component={StatisticsScreen} />
+      <Drawer.Screen name="Profile" component={ProfileScreen} />
+    </Drawer.Navigator>
+  );
+};
 
 const AppNav = () => {
   const { isLoading, userToken } = useContext(AuthContext);
@@ -39,12 +61,13 @@ const AppNav = () => {
       }}>
         {userToken !== null ? (
           <>
-            <Stack.Screen name="Dashboard" component={DashboardScreen} />
+            <Stack.Screen name="HomeDrawer" component={HomeDrawer} />
             <Stack.Screen
               name="AddExpense"
               component={AddExpenseScreen}
               options={{
-                headerShown: false
+                headerShown: false,
+                presentation: 'modal'
               }}
             />
             <Stack.Screen
@@ -54,7 +77,6 @@ const AppNav = () => {
                 headerShown: false
               }}
             />
-            <Stack.Screen name="Profile" component={ProfileScreen} />
             <Stack.Screen
               name="EditProfile"
               component={EditProfileScreen}
