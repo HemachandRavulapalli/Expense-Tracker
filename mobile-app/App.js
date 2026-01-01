@@ -41,7 +41,6 @@ const HomeDrawer = () => {
 
 const AppNav = () => {
   const { isLoading, userToken } = useContext(AuthContext);
-  console.log("AppNav: Render. isLoading:", isLoading, "userToken:", userToken);
 
   if (isLoading) {
     console.log("AppNav: Rendering Loading Spinner");
@@ -105,10 +104,8 @@ export default function App() {
     Poppins_700Bold,
     Poppins_800ExtraBold,
   });
-  console.log("App: Fonts Loaded State:", fontsLoaded);
 
   if (!fontsLoaded) {
-    console.log("App: Returning Loading Fonts View");
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
         <ActivityIndicator size="large" color="#1F88E5" />
