@@ -2,8 +2,10 @@ import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, Dimensions, Image } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
 import axios from '../api/axiosConfig';
-
+import { PieChart } from 'react-native-chart-kit';
 import { useFocusEffect } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Animatable from 'react-native-animatable';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme';
 
@@ -46,10 +48,26 @@ const DashboardScreen = ({ navigation }) => {
         }, [])
     );
 
+    const chartConfig = {
+        backgroundGradientFrom: theme.colors.surface,
+        backgroundGradientTo: theme.colors.surface,
+        color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+        strokeWidth: 2,
+    };
 
+    // Safe chart data preparation
+    const chartData = summary && summary.categoryBreakdown
+        ? Object.keys(summary.categoryBreakdown).map((key, index) => ({
+            name: key,
+            population: summary.categoryBreakdown[key].total,
+            color: theme.colors.chartColors[index % theme.colors.chartColors.length],
+            legendFontColor: theme.colors.textSecondary,
+            legendFontSize: 12
+        }))
+        : [];
 
     const renderItem = ({ item, index }) => (
-        <View>
+        <Animatable.View animation="fadeInUp" duration={400} delay={index * 100}>
             <TouchableOpacity
                 style={styles.expenseItem}
                 activeOpacity={0.7}
@@ -66,14 +84,16 @@ const DashboardScreen = ({ navigation }) => {
                     <Text style={styles.expenseAmount}>₹{item.amount.toFixed(2)}</Text>
                 </View>
             </TouchableOpacity>
-        </View>
+        </Animatable.View>
     );
 
     return (
         <View style={styles.container}>
             {/* App Bar */}
-            <View
-                style={[styles.header, { backgroundColor: theme.colors.primary }]}
+            <LinearGradient
+                colors={[theme.colors.gradientStart, theme.colors.gradientEnd]}
+                style={styles.header}
+                start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
             >
                 <View style={styles.headerTop}>
                     <TouchableOpacity onPress={() => { }}>
@@ -86,7 +106,7 @@ const DashboardScreen = ({ navigation }) => {
                         </View>
                     </TouchableOpacity>
                 </View>
-            </View>
+            </LinearGradient>
 
             <FlatList
                 data={expenses}
@@ -100,9 +120,9 @@ const DashboardScreen = ({ navigation }) => {
                 ListHeaderComponent={
                     <View style={{ padding: 20 }}>
                         {/* Total Spent Card */}
-                        {/* Total Spent Card */}
-                        <View
-                            style={[styles.totalCard, { backgroundColor: theme.colors.secondary }]}
+                        <LinearGradient
+                            colors={[theme.colors.secondary, theme.colors.secondaryDark]}
+                            style={styles.totalCard}
                         >
                             <Text style={styles.totalLabel}>Total Spent This Month</Text>
                             <Text style={styles.totalAmount}>₹ {summary?.totalSpent?.toFixed(2) || '0.00'}</Text>
@@ -110,7 +130,7 @@ const DashboardScreen = ({ navigation }) => {
                                 <Ionicons name="arrow-down" size={16} color={theme.colors.surface} />
                                 <Text style={styles.trendText}>12% from last month</Text>
                             </View>
-                        </View>
+                        </LinearGradient>
 
                         {/* Quick Stats Row (Mock for now, could be dynamic) */}
                         <View style={styles.statsRow}>
@@ -132,7 +152,22 @@ const DashboardScreen = ({ navigation }) => {
                         </View>
 
                         {/* Chart Section */}
-                        {/* Chart Section Removed */}
+                        {chartData.length > 0 && (
+                            <View style={styles.chartContainer}>
+                                <Text style={styles.sectionTitle}>Category Breakdown</Text>
+                                <PieChart
+                                    data={chartData}
+                                    width={screenWidth - 80}
+                                    height={200}
+                                    chartConfig={chartConfig}
+                                    accessor={"population"}
+                                    backgroundColor={"transparent"}
+                                    paddingLeft={"15"}
+                                    center={[0, 0]}
+                                    absolute
+                                />
+                            </View>
+                        )}
 
                         <Text style={styles.sectionTitle}>Recent Expenses</Text>
                     </View>
