@@ -1,11 +1,28 @@
-import React, { useContext } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView, Alert } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme';
 
 const ProfileScreen = ({ navigation }) => {
-    const { logout, userInfo } = useContext(AuthContext);
+    const { logout, userInfo, updateUserInfo } = useContext(AuthContext);
+
+    // Local State (initialized from userInfo if available, else defaults)
+    const [isDark, setIsDark] = useState(userInfo?.theme === 'dark');
+    const [pushEnabled, setPushEnabled] = useState(userInfo?.pushNotificationsEnabled ?? true);
+    const [budgetEnabled, setBudgetEnabled] = useState(userInfo?.budgetAlertEnabled ?? true);
+
+    const toggleSwitch = (val, setFunc, key) => {
+        setFunc(val);
+        // Update Context/Storage
+        if (updateUserInfo) {
+            updateUserInfo({ ...userInfo, [key]: val });
+        }
+    };
+
+    const handleExport = () => {
+        Alert.alert("Export Data", "Your expenses have been exported to CSV (Mock). Check your email.");
+    };
 
     const SettingItem = ({ icon, label, hasArrow, isToggle, value, onToggle }) => (
         <View style={styles.settingItem}>
@@ -53,7 +70,13 @@ const ProfileScreen = ({ navigation }) => {
                 {/* Preferences */}
                 <Text style={styles.sectionHeader}>APP PREFERENCES</Text>
                 <View style={styles.card}>
-                    <SettingItem icon="moon-outline" label="Dark Theme" isToggle value={false} onToggle={() => { }} />
+                    <SettingItem
+                        icon="moon-outline"
+                        label="Dark Theme"
+                        isToggle
+                        value={isDark}
+                        onToggle={(val) => toggleSwitch(val, setIsDark, 'theme')}
+                    />
                     <View style={styles.divider} />
                     <SettingItem icon="cash-outline" label="Currency (₹)" hasArrow />
                 </View>
@@ -61,15 +84,29 @@ const ProfileScreen = ({ navigation }) => {
                 {/* Notifications */}
                 <Text style={styles.sectionHeader}>NOTIFICATIONS</Text>
                 <View style={styles.card}>
-                    <SettingItem icon="notifications-outline" label="Push Notifications" isToggle value={true} onToggle={() => { }} />
+                    <SettingItem
+                        icon="notifications-outline"
+                        label="Push Notifications"
+                        isToggle
+                        value={pushEnabled}
+                        onToggle={(val) => toggleSwitch(val, setPushEnabled, 'pushNotificationsEnabled')}
+                    />
                     <View style={styles.divider} />
-                    <SettingItem icon="alert-circle-outline" label="Budget Alert" isToggle value={true} onToggle={() => { }} />
+                    <SettingItem
+                        icon="alert-circle-outline"
+                        label="Budget Alert"
+                        isToggle
+                        value={budgetEnabled}
+                        onToggle={(val) => toggleSwitch(val, setBudgetEnabled, 'budgetAlertEnabled')}
+                    />
                 </View>
 
                 {/* Data & Privacy */}
                 <Text style={styles.sectionHeader}>DATA & PRIVACY</Text>
                 <View style={styles.card}>
-                    <SettingItem icon="cloud-download-outline" label="Export Data" hasArrow />
+                    <TouchableOpacity onPress={handleExport}>
+                        <SettingItem icon="cloud-download-outline" label="Export Data" hasArrow />
+                    </TouchableOpacity>
                     <View style={styles.divider} />
                     <SettingItem icon="document-text-outline" label="Privacy Policy" hasArrow />
                 </View>
