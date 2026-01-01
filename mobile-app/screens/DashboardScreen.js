@@ -4,8 +4,6 @@ import { AuthContext } from '../context/AuthContext';
 import axios from '../api/axiosConfig';
 
 import { useFocusEffect } from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as Animatable from 'react-native-animatable';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme';
 
@@ -51,7 +49,7 @@ const DashboardScreen = ({ navigation }) => {
 
 
     const renderItem = ({ item, index }) => (
-        <Animatable.View animation="fadeInUp" duration={400} delay={index * 100}>
+        <View>
             <TouchableOpacity
                 style={styles.expenseItem}
                 activeOpacity={0.7}
@@ -68,16 +66,14 @@ const DashboardScreen = ({ navigation }) => {
                     <Text style={styles.expenseAmount}>₹{item.amount.toFixed(2)}</Text>
                 </View>
             </TouchableOpacity>
-        </Animatable.View>
+        </View>
     );
 
     return (
         <View style={styles.container}>
             {/* App Bar */}
-            <LinearGradient
-                colors={[theme.colors.gradientStart, theme.colors.gradientEnd]}
-                style={styles.header}
-                start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+            <View
+                style={[styles.header, { backgroundColor: theme.colors.primary }]}
             >
                 <View style={styles.headerTop}>
                     <TouchableOpacity onPress={() => { }}>
@@ -90,7 +86,7 @@ const DashboardScreen = ({ navigation }) => {
                         </View>
                     </TouchableOpacity>
                 </View>
-            </LinearGradient>
+            </View>
 
             <FlatList
                 data={expenses}
@@ -104,9 +100,9 @@ const DashboardScreen = ({ navigation }) => {
                 ListHeaderComponent={
                     <View style={{ padding: 20 }}>
                         {/* Total Spent Card */}
-                        <LinearGradient
-                            colors={[theme.colors.secondary, theme.colors.secondaryDark]}
-                            style={styles.totalCard}
+                        {/* Total Spent Card */}
+                        <View
+                            style={[styles.totalCard, { backgroundColor: theme.colors.secondary }]}
                         >
                             <Text style={styles.totalLabel}>Total Spent This Month</Text>
                             <Text style={styles.totalAmount}>₹ {summary?.totalSpent?.toFixed(2) || '0.00'}</Text>
@@ -114,7 +110,7 @@ const DashboardScreen = ({ navigation }) => {
                                 <Ionicons name="arrow-down" size={16} color={theme.colors.surface} />
                                 <Text style={styles.trendText}>12% from last month</Text>
                             </View>
-                        </LinearGradient>
+                        </View>
 
                         {/* Quick Stats Row (Mock for now, could be dynamic) */}
                         <View style={styles.statsRow}>
