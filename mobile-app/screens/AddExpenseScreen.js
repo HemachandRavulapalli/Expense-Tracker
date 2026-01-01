@@ -56,10 +56,13 @@ const AddExpenseScreen = ({ navigation }) => {
             navigation.goBack();
         } catch (e) {
             console.error("AddExpense: Error", e);
+            const errMsg = e.response?.data?.error || e.message || 'Failed to add expense';
+            console.log("Server Error Message:", errMsg);
+
             if (Platform.OS === 'web') {
-                alert('Error: Failed to add expense.');
+                alert('Error: ' + errMsg);
             } else {
-                Alert.alert('Error', 'Failed to add expense.');
+                Alert.alert('Error', errMsg);
             }
         } finally {
             setLoading(false);
