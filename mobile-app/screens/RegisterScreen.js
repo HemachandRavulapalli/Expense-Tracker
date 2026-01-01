@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
+import * as Animatable from 'react-native-animatable';
 import { theme } from '../theme';
 
 const RegisterScreen = ({ navigation }) => {
@@ -27,7 +28,7 @@ const RegisterScreen = ({ navigation }) => {
                         <Text style={styles.subtitle}>Start tracking expenses</Text>
                     </View>
 
-                    <View style={styles.formContainer}>
+                    <Animatable.View animation="fadeInUpBig" duration={1000} style={styles.formContainer}>
                         {/* Full Name */}
                         <Text style={styles.label}>Full Name</Text>
                         <View style={styles.inputContainer}>
@@ -90,7 +91,7 @@ const RegisterScreen = ({ navigation }) => {
                         <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.footerLink}>
                             <Text style={styles.linkText}>Already have an account? <Text style={styles.linkBold}>Login</Text></Text>
                         </TouchableOpacity>
-                    </View>
+                    </Animatable.View>
                 </ScrollView>
             </KeyboardAvoidingView>
         </View>
