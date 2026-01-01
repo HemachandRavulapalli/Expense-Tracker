@@ -155,7 +155,7 @@ const DashboardScreen = ({ navigation }) => {
                         {chartData.length > 0 && (
                             <View style={styles.chartContainer}>
                                 <Text style={styles.sectionTitle}>Category Breakdown</Text>
-                                <PieChart
+                                {/* <PieChart
                                     data={chartData}
                                     width={screenWidth - 80}
                                     height={200}
@@ -165,7 +165,7 @@ const DashboardScreen = ({ navigation }) => {
                                     paddingLeft={"15"}
                                     center={[0, 0]}
                                     absolute
-                                />
+                                /> */}
                             </View>
                         )}
 
