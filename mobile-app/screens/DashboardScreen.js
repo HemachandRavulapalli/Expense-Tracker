@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, Dimensions, Image } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
 import axios from '../api/axiosConfig';
-import { PieChart } from 'react-native-chart-kit';
+
 import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Animatable from 'react-native-animatable';
@@ -48,23 +48,7 @@ const DashboardScreen = ({ navigation }) => {
         }, [])
     );
 
-    const chartConfig = {
-        backgroundGradientFrom: theme.colors.surface,
-        backgroundGradientTo: theme.colors.surface,
-        color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-        strokeWidth: 2,
-    };
 
-    // Safe chart data preparation
-    const chartData = summary && summary.categoryBreakdown
-        ? Object.keys(summary.categoryBreakdown).map((key, index) => ({
-            name: key,
-            population: summary.categoryBreakdown[key].total,
-            color: theme.colors.chartColors[index % theme.colors.chartColors.length],
-            legendFontColor: theme.colors.textSecondary,
-            legendFontSize: 12
-        }))
-        : [];
 
     const renderItem = ({ item, index }) => (
         <Animatable.View animation="fadeInUp" duration={400} delay={index * 100}>
@@ -152,22 +136,7 @@ const DashboardScreen = ({ navigation }) => {
                         </View>
 
                         {/* Chart Section */}
-                        {chartData.length > 0 && (
-                            <View style={styles.chartContainer}>
-                                <Text style={styles.sectionTitle}>Category Breakdown</Text>
-                                {/* <PieChart
-                                    data={chartData}
-                                    width={screenWidth - 80}
-                                    height={200}
-                                    chartConfig={chartConfig}
-                                    accessor={"population"}
-                                    backgroundColor={"transparent"}
-                                    paddingLeft={"15"}
-                                    center={[0, 0]}
-                                    absolute
-                                /> */}
-                            </View>
-                        )}
+                        {/* Chart Section Removed */}
 
                         <Text style={styles.sectionTitle}>Recent Expenses</Text>
                     </View>
