@@ -25,24 +25,42 @@ const AddExpenseScreen = ({ navigation }) => {
     ];
 
     const handleAddExpense = async () => {
+        console.log("AddExpense: handleAddExpense called");
+        console.log("Inputs:", { title, amount, category });
+
         if (!title || !amount || !category) {
-            Alert.alert('Missing Fields', 'Please fill in title, amount, and category.');
+            console.log("AddExpense: Validation Failed");
+            if (Platform.OS === 'web') {
+                alert('Missing Fields: Please fill in title, amount, and category.');
+            } else {
+                Alert.alert('Missing Fields', 'Please fill in title, amount, and category.');
+            }
             return;
         }
 
         setLoading(true);
         try {
-            await axios.post('/expenses', {
+            console.log("AddExpense: Sending request...");
+            const payload = {
                 title,
                 amount: parseFloat(amount),
                 category: category.name,
                 date: new Date().toISOString()
-            }, {
+            };
+            console.log("payload:", payload);
+
+            await axios.post('/expenses', payload, {
                 headers: { Authorization: `Bearer ${userToken}` }
             });
+            console.log("AddExpense: Success");
             navigation.goBack();
         } catch (e) {
-            Alert.alert('Error', 'Failed to add expense.');
+            console.error("AddExpense: Error", e);
+            if (Platform.OS === 'web') {
+                alert('Error: Failed to add expense.');
+            } else {
+                Alert.alert('Error', 'Failed to add expense.');
+            }
         } finally {
             setLoading(false);
         }
