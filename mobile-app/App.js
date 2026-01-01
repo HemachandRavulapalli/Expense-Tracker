@@ -19,8 +19,10 @@ const Stack = createStackNavigator();
 
 const AppNav = () => {
   const { isLoading, userToken } = useContext(AuthContext);
+  console.log("AppNav: Render. isLoading:", isLoading, "userToken:", userToken);
 
   if (isLoading) {
+    console.log("AppNav: Rendering Loading Spinner");
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.background }}>
         <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -73,14 +75,18 @@ const AppNav = () => {
 };
 
 export default function App() {
+  console.log("App: Component Mounting...");
+
   let [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_500Medium,
     Poppins_700Bold,
     Poppins_800ExtraBold,
   });
+  console.log("App: Fonts Loaded State:", fontsLoaded);
 
   if (!fontsLoaded) {
+    console.log("App: Returning Loading Fonts View");
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
         <ActivityIndicator size="large" color="#1F88E5" />
