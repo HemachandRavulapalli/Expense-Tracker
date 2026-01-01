@@ -2,78 +2,95 @@ import React, { useContext, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
-import * as Animatable from 'react-native-animatable';
 import { theme } from '../theme';
 
 const RegisterScreen = ({ navigation }) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [isSecure, setIsSecure] = useState(true);
     const { register, isLoading } = useContext(AuthContext);
+
+    const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
     return (
         <View style={styles.container}>
-            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.innerContainer}>
-                <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }} showsVerticalScrollIndicator={false}>
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+                <ScrollView contentContainerStyle={styles.scrollContent}>
 
-                    <Animatable.View animation="fadeInDown" style={styles.headerContainer}>
-                        <Ionicons name="person-add-outline" size={60} color={theme.colors.secondary} />
+                    <View style={styles.headerContainer}>
+                        <TouchableOpacity onPress={() => navigation.goBack()} style={{ position: 'absolute', left: 0, top: 0 }}>
+                            <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
+                        </TouchableOpacity>
                         <Text style={styles.title}>Create Account</Text>
-                    </Animatable.View>
+                        <Text style={styles.subtitle}>Start tracking expenses</Text>
+                    </View>
 
-                    <Animatable.View animation="fadeInUp" delay={200} style={styles.formContainer}>
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.label}>FULL NAME</Text>
+                    <View style={styles.formContainer}>
+                        {/* Full Name */}
+                        <Text style={styles.label}>Full Name</Text>
+                        <View style={styles.inputContainer}>
+                            <Ionicons name="person-outline" size={20} color={theme.colors.textSecondary} style={{ marginRight: 10 }} />
                             <TextInput
                                 style={styles.input}
                                 value={name}
                                 onChangeText={setName}
-                                placeholderTextColor={theme.colors.textSecondary}
-                                placeholder="John Doe"
+                                placeholder="Enter your full name"
+                                placeholderTextColor={theme.colors.textTertiary}
                             />
                         </View>
 
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.label}>EMAIL</Text>
+                        {/* Email */}
+                        <Text style={styles.label}>Email</Text>
+                        <View style={[styles.inputContainer, isValidEmail(email) && { borderColor: theme.colors.primary }]}>
+                            <Ionicons name="mail-outline" size={20} color={theme.colors.textSecondary} style={{ marginRight: 10 }} />
                             <TextInput
                                 style={styles.input}
                                 value={email}
                                 onChangeText={setEmail}
-                                autoCapitalize="none"
+                                placeholder="Enter your email"
+                                placeholderTextColor={theme.colors.textTertiary}
                                 keyboardType="email-address"
-                                placeholderTextColor={theme.colors.textSecondary}
-                                placeholder="name@example.com"
+                                autoCapitalize="none"
                             />
                         </View>
 
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.label}>PASSWORD</Text>
+                        {/* Password */}
+                        <Text style={styles.label}>Password</Text>
+                        <View style={styles.inputContainer}>
+                            <Ionicons name="lock-closed-outline" size={20} color={theme.colors.textSecondary} style={{ marginRight: 10 }} />
                             <TextInput
                                 style={styles.input}
                                 value={password}
                                 onChangeText={setPassword}
-                                secureTextEntry
-                                placeholderTextColor={theme.colors.textSecondary}
-                                placeholder="••••••••"
+                                placeholder="Enter password"
+                                placeholderTextColor={theme.colors.textTertiary}
+                                secureTextEntry={isSecure}
                             />
+                            <TouchableOpacity onPress={() => setIsSecure(!isSecure)}>
+                                <Ionicons name={isSecure ? "eye-off-outline" : "eye-outline"} size={20} color={theme.colors.textSecondary} />
+                            </TouchableOpacity>
                         </View>
 
+                        {/* Register Button */}
                         <TouchableOpacity
                             activeOpacity={0.8}
-                            style={styles.button}
+                            style={[styles.button, (!name || !email || !password) && styles.buttonDisabled]}
                             onPress={() => register(name, email, password)}
+                            disabled={!name || !email || !password || isLoading}
                         >
                             {isLoading ? (
                                 <ActivityIndicator size="small" color="#fff" />
                             ) : (
-                                <Text style={styles.buttonText}>Sign Up</Text>
+                                <Text style={styles.buttonText}>CREATE ACCOUNT</Text>
                             )}
                         </TouchableOpacity>
 
-                        <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.loginLink}>
-                            <Text style={styles.linkText}>Already have an account? <Text style={styles.linkBold}>Log In</Text></Text>
+                        <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.footerLink}>
+                            <Text style={styles.linkText}>Already have an account? <Text style={styles.linkBold}>Login</Text></Text>
                         </TouchableOpacity>
-                    </Animatable.View>
+                    </View>
                 </ScrollView>
             </KeyboardAvoidingView>
         </View>
@@ -82,35 +99,31 @@ const RegisterScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: theme.colors.background },
-    innerContainer: { flex: 1, padding: 24 },
-    headerContainer: { alignItems: 'center', marginBottom: 40, marginTop: 40 },
-    title: { fontSize: 32, fontWeight: 'bold', color: '#fff', marginTop: 15 },
+    scrollContent: { flexGrow: 1, justifyContent: 'center', padding: 24 },
+
+    headerContainer: { marginBottom: 32, marginTop: 20 },
+    title: { fontSize: 28, fontWeight: 'bold', color: theme.colors.text, marginTop: 40, fontFamily: theme.fonts.bold },
+    subtitle: { fontSize: 16, color: theme.colors.textSecondary, fontFamily: theme.fonts.regular },
 
     formContainer: { width: '100%' },
-    inputGroup: { marginBottom: 20 },
-    label: { color: theme.colors.textSecondary, fontSize: 12, fontWeight: 'bold', marginBottom: 8, letterSpacing: 1 },
-    input: {
-        backgroundColor: theme.colors.card,
-        color: '#fff',
-        padding: 18,
-        borderRadius: 12,
-        fontSize: 16,
-        borderWidth: 1,
-        borderColor: theme.colors.border
+    label: { fontSize: 12, color: theme.colors.textSecondary, marginBottom: 8, marginLeft: 4, fontFamily: theme.fonts.medium },
+    inputContainer: {
+        flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.surface,
+        borderWidth: 1, borderColor: theme.colors.border, borderRadius: 8,
+        paddingHorizontal: 12, height: 56, marginBottom: 20
     },
+    input: { flex: 1, color: theme.colors.text, fontSize: 16, fontFamily: theme.fonts.regular },
 
     button: {
-        backgroundColor: theme.colors.secondary,
-        padding: 18,
-        borderRadius: 12,
-        alignItems: 'center',
-        marginTop: 10,
+        backgroundColor: theme.colors.primary, height: 48, borderRadius: 8,
+        justifyContent: 'center', alignItems: 'center', marginTop: 10, elevation: 3
     },
-    buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+    buttonDisabled: { backgroundColor: theme.colors.textTertiary, elevation: 0 },
+    buttonText: { color: '#fff', fontSize: 14, fontWeight: 'bold', letterSpacing: 1 },
 
-    loginLink: { alignItems: 'center', marginTop: 30 },
-    linkText: { color: theme.colors.textSecondary, fontSize: 14 },
-    linkBold: { color: theme.colors.secondary, fontWeight: 'bold' },
+    footerLink: { alignItems: 'center', marginTop: 30 },
+    linkText: { color: theme.colors.text, fontSize: 14 },
+    linkBold: { color: theme.colors.primary, fontWeight: 'bold' }
 });
 
 export default RegisterScreen;

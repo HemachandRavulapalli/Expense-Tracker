@@ -48,19 +48,39 @@ router.get('/me', protect, async (req, res) => {
 // @access  Private
 router.put('/profile', protect, async (req, res) => {
     try {
-        const { name, email } = req.body;
+        const {
+            name,
+            email,
+            currency,
+            theme,
+            defaultCategory,
+            pushNotificationsEnabled,
+            monthlyNotificationsEnabled,
+            budgetAlertEnabled,
+            monthlyBudget
+        } = req.body;
+
         const user = await User.findById(req.user.id);
 
         if (user) {
             user.name = name || user.name;
             user.email = email || user.email;
+            if (currency) user.currency = currency;
+            if (theme) user.theme = theme;
+            if (defaultCategory) user.defaultCategory = defaultCategory;
+            if (pushNotificationsEnabled !== undefined) user.pushNotificationsEnabled = pushNotificationsEnabled;
+            if (monthlyNotificationsEnabled !== undefined) user.monthlyNotificationsEnabled = monthlyNotificationsEnabled;
+            if (budgetAlertEnabled !== undefined) user.budgetAlertEnabled = budgetAlertEnabled;
+            if (monthlyBudget !== undefined) user.monthlyBudget = monthlyBudget;
 
             const updatedUser = await user.save();
             res.json({
                 _id: updatedUser._id,
                 name: updatedUser.name,
                 email: updatedUser.email,
-                token: generateToken(updatedUser._id), // Optional: issue new token
+                currency: updatedUser.currency,
+                theme: updatedUser.theme,
+                token: generateToken(updatedUser._id),
             });
         } else {
             res.status(404).json({ message: 'User not found' });

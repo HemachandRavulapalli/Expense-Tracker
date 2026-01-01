@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
@@ -30,6 +30,7 @@ const AppNav = () => {
 
   return (
     <NavigationContainer>
+      <StatusBar style="dark" backgroundColor="transparent" translucent />
       <Stack.Navigator screenOptions={{
         headerShown: false,
         cardStyle: { backgroundColor: theme.colors.background }
@@ -41,22 +42,14 @@ const AppNav = () => {
               name="AddExpense"
               component={AddExpenseScreen}
               options={{
-                headerShown: true,
-                title: 'Add Transaction',
-                headerStyle: { backgroundColor: theme.colors.surface, borderBottomWidth: 0, shadowColor: 'transparent' },
-                headerTintColor: '#fff',
-                headerTitleStyle: { fontFamily: theme.fonts.bold }
+                headerShown: false
               }}
             />
             <Stack.Screen
               name="EditExpense"
               component={EditExpenseScreen}
               options={{
-                headerShown: true,
-                title: 'Edit Transaction',
-                headerStyle: { backgroundColor: theme.colors.surface, borderBottomWidth: 0 },
-                headerTintColor: '#fff',
-                headerTitleStyle: { fontFamily: theme.fonts.bold }
+                headerShown: false
               }}
             />
             <Stack.Screen name="Profile" component={ProfileScreen} />
@@ -64,11 +57,7 @@ const AppNav = () => {
               name="EditProfile"
               component={EditProfileScreen}
               options={{
-                headerShown: true,
-                title: 'Edit Profile',
-                headerStyle: { backgroundColor: theme.colors.surface, borderBottomWidth: 0 },
-                headerTintColor: '#fff',
-                headerTitleStyle: { fontFamily: theme.fonts.bold }
+                headerShown: false
               }}
             />
           </>
@@ -76,7 +65,7 @@ const AppNav = () => {
           <>
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Register" component={RegisterScreen} />
-          </>
+          </Stack.Navigator>
         )}
       </Stack.Navigator>
     </NavigationContainer>
@@ -92,12 +81,11 @@ export default function App() {
   });
 
   if (!fontsLoaded) {
-    return <View style={{ flex: 1, backgroundColor: '#000' }} />;
+    return <View style={{ flex: 1, backgroundColor: '#fff' }} />;
   }
 
   return (
     <AuthProvider>
-      <StatusBar style="light" />
       <AppNav />
     </AuthProvider>
   );

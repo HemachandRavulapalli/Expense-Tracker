@@ -1,108 +1,122 @@
 import React, { useContext } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Share } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
-import * as Animatable from 'react-native-animatable';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme';
 
 const ProfileScreen = ({ navigation }) => {
     const { logout, userInfo } = useContext(AuthContext);
 
-    const handleExport = async () => {
-        try {
-            const result = await Share.share({
-                message: `Expense Report for ${userInfo?.name || 'User'}: \n\n (Data would be attached here in production)`,
-            });
-            if (result.action === Share.sharedAction) {
-                // Shared
-            }
-        } catch (error) {
-            Alert.alert(error.message);
-        }
-    };
-
-    const handlePreferences = () => {
-        Alert.alert("Preferences", "Settings module coming soon!");
-    };
+    const SettingItem = ({ icon, label, hasArrow, isToggle, value, onToggle }) => (
+        <View style={styles.settingItem}>
+            <View style={styles.settingLeft}>
+                <Ionicons name={icon} size={24} color={theme.colors.textSecondary} />
+                <Text style={styles.settingLabel}>{label}</Text>
+            </View>
+            {isToggle ? (
+                <Switch
+                    value={value}
+                    onValueChange={onToggle}
+                    trackColor={{ false: theme.colors.border, true: theme.colors.primaryLight }}
+                    thumbColor={value ? theme.colors.primary : '#f4f3f4'}
+                />
+            ) : (
+                hasArrow && <Ionicons name="chevron-forward" size={20} color={theme.colors.textTertiary} />
+            )}
+        </View>
+    );
 
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-                    <Ionicons name="arrow-back" size={24} color="#fff" />
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>My Profile</Text>
+                <Text style={styles.headerTitle}>Settings</Text>
+                <View style={{ width: 24 }} />
             </View>
 
-            <Animatable.View animation="fadeInUp" style={styles.content}>
-                <View style={styles.avatarContainer}>
-                    <View style={styles.avatarCircle}>
+            <ScrollView contentContainerStyle={styles.content}>
+                {/* Account Section */}
+                <Text style={styles.sectionHeader}>ACCOUNT</Text>
+                <TouchableOpacity style={styles.profileCard} onPress={() => navigation.navigate('EditProfile')}>
+                    <View style={styles.avatar}>
                         <Text style={styles.avatarText}>{userInfo?.name?.charAt(0) || 'U'}</Text>
                     </View>
-                    <Text style={styles.name}>{userInfo?.name || 'User Name'}</Text>
-                    <Text style={styles.email}>{userInfo?.email || 'user@example.com'}</Text>
+                    <View style={{ flex: 1 }}>
+                        <Text style={styles.profileName}>{userInfo?.name}</Text>
+                        <Text style={styles.profileEmail}>{userInfo?.email}</Text>
+                    </View>
+                    <Ionicons name="pencil" size={20} color={theme.colors.primary} />
+                </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.editBadge} onPress={() => navigation.navigate('EditProfile')}>
-                        <Ionicons name="pencil" size={14} color="#fff" />
-                        <Text style={styles.editText}>Edit</Text>
-                    </TouchableOpacity>
+                {/* Preferences */}
+                <Text style={styles.sectionHeader}>APP PREFERENCES</Text>
+                <View style={styles.card}>
+                    <SettingItem icon="moon-outline" label="Dark Theme" isToggle value={false} onToggle={() => { }} />
+                    <View style={styles.divider} />
+                    <SettingItem icon="cash-outline" label="Currency (₹)" hasArrow />
                 </View>
 
-                <View style={styles.menuContainer}>
-                    <TouchableOpacity style={styles.menuItem} onPress={handlePreferences}>
-                        <Ionicons name="settings-outline" size={22} color={theme.colors.textSecondary} style={styles.menuIcon} />
-                        <Text style={styles.menuText}>Preferences</Text>
-                        <Ionicons name="chevron-forward" size={18} color={theme.colors.border} />
-                    </TouchableOpacity>
+                {/* Notifications */}
+                <Text style={styles.sectionHeader}>NOTIFICATIONS</Text>
+                <View style={styles.card}>
+                    <SettingItem icon="notifications-outline" label="Push Notifications" isToggle value={true} onToggle={() => { }} />
+                    <View style={styles.divider} />
+                    <SettingItem icon="alert-circle-outline" label="Budget Alert" isToggle value={true} onToggle={() => { }} />
+                </View>
 
-                    <TouchableOpacity style={styles.menuItem} onPress={handleExport}>
-                        <Ionicons name="cloud-download-outline" size={22} color={theme.colors.textSecondary} style={styles.menuIcon} />
-                        <Text style={styles.menuText}>Export Data</Text>
-                        <Ionicons name="chevron-forward" size={18} color={theme.colors.border} />
-                    </TouchableOpacity>
+                {/* Data & Privacy */}
+                <Text style={styles.sectionHeader}>DATA & PRIVACY</Text>
+                <View style={styles.card}>
+                    <SettingItem icon="cloud-download-outline" label="Export Data" hasArrow />
+                    <View style={styles.divider} />
+                    <SettingItem icon="document-text-outline" label="Privacy Policy" hasArrow />
                 </View>
 
                 <TouchableOpacity onPress={logout} style={styles.logoutBtn}>
-                    <Text style={styles.logoutText}>Log Out</Text>
+                    <Text style={styles.logoutText}>LOGOUT</Text>
                 </TouchableOpacity>
-            </Animatable.View>
+
+            </ScrollView>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: theme.colors.background },
-    header: { padding: 20, paddingTop: 60, flexDirection: 'row', alignItems: 'center' },
-    backBtn: { marginRight: 20 },
-    headerTitle: { fontSize: 20, color: '#fff', fontFamily: theme.fonts.bold },
-
-    content: { padding: 20, alignItems: 'center' },
-
-    avatarContainer: { alignItems: 'center', marginBottom: 40, marginTop: 20 },
-    avatarCircle: {
-        width: 100, height: 100, borderRadius: 50, justifyContent: 'center', alignItems: 'center',
-        marginBottom: 15, backgroundColor: theme.colors.card, borderWidth: 1, borderColor: theme.colors.border
+    header: {
+        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+        padding: 16, backgroundColor: theme.colors.surface, elevation: 2, paddingTop: 50
     },
-    avatarText: { fontSize: 40, color: '#fff', fontFamily: theme.fonts.bold },
-    name: { fontSize: 24, color: '#fff', fontFamily: theme.fonts.bold },
-    email: { fontSize: 16, color: theme.colors.textSecondary, marginTop: 5, fontFamily: theme.fonts.regular },
+    headerTitle: { fontSize: 18, fontWeight: '500', color: theme.colors.text, fontFamily: theme.fonts.medium },
 
-    editBadge: {
-        flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.primary,
-        paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, marginTop: 15
+    content: { padding: 20 },
+    sectionHeader: { fontSize: 12, color: theme.colors.textSecondary, marginBottom: 8, marginTop: 16, fontWeight: 'bold' },
+
+    profileCard: {
+        flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.surface,
+        padding: 16, borderRadius: 12, elevation: 1, marginBottom: 8
     },
-    editText: { color: '#fff', marginLeft: 5, fontSize: 12, fontFamily: theme.fonts.bold },
-
-    menuContainer: { width: '100%', marginBottom: 30 },
-    menuItem: {
-        flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.card,
-        padding: 16, borderRadius: 12, marginBottom: 12
+    avatar: {
+        width: 48, height: 48, borderRadius: 24, backgroundColor: theme.colors.primaryLight,
+        justifyContent: 'center', alignItems: 'center', marginRight: 16
     },
-    menuIcon: { marginRight: 15 },
-    menuText: { flex: 1, color: '#fff', fontSize: 16, fontFamily: theme.fonts.medium },
+    avatarText: { fontSize: 20, fontWeight: 'bold', color: theme.colors.primaryDark },
+    profileName: { fontSize: 16, fontWeight: 'bold', color: theme.colors.text },
+    profileEmail: { fontSize: 14, color: theme.colors.textSecondary },
 
-    logoutBtn: { width: '100%', padding: 18, borderRadius: 12, backgroundColor: '#1C1C1E', alignItems: 'center', borderWidth: 1, borderColor: theme.colors.error },
-    logoutText: { color: theme.colors.error, fontSize: 16, fontFamily: theme.fonts.bold }
+    card: { backgroundColor: theme.colors.surface, borderRadius: 12, elevation: 1, overflow: 'hidden' },
+    settingItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16 },
+    settingLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    settingLabel: { fontSize: 16, color: theme.colors.text, fontFamily: theme.fonts.regular },
+    divider: { height: 1, backgroundColor: theme.colors.divider, marginLeft: 52 },
+
+    logoutBtn: {
+        backgroundColor: theme.colors.error, borderRadius: 8, height: 48,
+        justifyContent: 'center', alignItems: 'center', marginTop: 32, marginBottom: 20
+    },
+    logoutText: { color: '#fff', fontSize: 14, fontWeight: 'bold' }
 });
 
 export default ProfileScreen;

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions, RefreshControl, Modal, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, Dimensions, Image, Platform } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
 import axios from '../api/axiosConfig';
 import { PieChart } from 'react-native-chart-kit';
@@ -8,130 +8,80 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Animatable from 'react-native-animatable';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme';
-import DateTimePicker from '@react-native-community/datetimepicker'; // Ideally we'd use this, but for simplicity on web/expo standard we might use simple date logic or buttons.
 
 const screenWidth = Dimensions.get("window").width;
 
 const DashboardScreen = ({ navigation }) => {
     const { userToken, userInfo } = useContext(AuthContext);
     const [expenses, setExpenses] = useState([]);
-    const [chartData, setChartData] = useState([]);
+    const [summary, setSummary] = useState(null);
     const [refreshing, setRefreshing] = useState(false);
-    const [totalAmount, setTotalAmount] = useState(0);
+    const [loading, setLoading] = useState(true);
 
-    // Filter State
-    const [filterType, setFilterType] = useState('All'); // All, Daily, Monthly, Yearly
-    const [customStartDate, setCustomStartDate] = useState(null);
-    const [customEndDate, setCustomEndDate] = useState(null);
-
-    const fetchExpenses = async () => {
+    const fetchData = async () => {
         try {
             setRefreshing(true);
 
-            let queryParams = '';
-            const now = new Date();
-            let start = new Date();
-            let end = new Date();
-
-            if (filterType === 'Daily') {
-                start.setHours(0, 0, 0, 0);
-                end.setHours(23, 59, 59, 999);
-                queryParams = `?startDate=${start.toISOString()}&endDate=${end.toISOString()}`;
-            } else if (filterType === 'Monthly') {
-                start.setDate(1); // First day of month
-                start.setHours(0, 0, 0, 0);
-                // End is today (or end of month)
-            } else if (filterType === 'Yearly') {
-                start.setMonth(0, 1); // Jan 1st
-                start.setHours(0, 0, 0, 0);
-            }
-
-            // If filtering is applied (simple logic for now, utilizing backend query)
-            if (filterType !== 'All') {
-                queryParams = `?startDate=${start.toISOString()}`; // Fetch from start date until now
-            }
-
-            const res = await axios.get(`/expenses${queryParams}`, {
+            // Fetch Recent Expenses
+            const expenseRes = await axios.get('/expenses?limit=5', {
                 headers: { Authorization: `Bearer ${userToken}` }
             });
-            setExpenses(res.data);
-            processChartData(res.data);
+            setExpenses(expenseRes.data.data);
+
+            // Fetch Summary
+            const summaryRes = await axios.get('/expenses/summary', {
+                headers: { Authorization: `Bearer ${userToken}` }
+            });
+            setSummary(summaryRes.data.summary);
+
         } catch (e) {
             console.log(e);
         } finally {
             setRefreshing(false);
-        }
-    };
-
-    const deleteExpense = async (id) => {
-        try {
-            await axios.delete(`/expenses/${id}`, {
-                headers: { Authorization: `Bearer ${userToken}` }
-            });
-            const updated = expenses.filter(item => item._id !== id);
-            setExpenses(updated);
-            processChartData(updated);
-        } catch (e) {
-            // Alert.alert("Error", "Failed to delete expense");
+            setLoading(false);
         }
     };
 
     useFocusEffect(
         useCallback(() => {
-            fetchExpenses();
-        }, [filterType])
+            fetchData();
+        }, [])
     );
 
-    const processChartData = (data) => {
-        const categories = {};
-        let total = 0;
-        data.forEach(item => {
-            categories[item.category] = (categories[item.category] || 0) + item.amount;
-            total += item.amount;
-        });
-        setTotalAmount(total);
-
-        const colors = theme.colors.chartColors;
-
-        const chart = Object.keys(categories).map((key, index) => ({
-            name: key,
-            population: categories[key],
-            color: colors[index % colors.length],
-            legendFontColor: theme.colors.textSecondary,
-            legendFontSize: 12
-        }));
-
-        setChartData(chart);
+    const chartConfig = {
+        backgroundGradientFrom: theme.colors.surface,
+        backgroundGradientTo: theme.colors.surface,
+        color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+        strokeWidth: 2,
     };
 
-    const FilterTab = ({ label }) => (
-        <TouchableOpacity
-            style={[styles.filterTab, filterType === label && styles.activeFilterTab]}
-            onPress={() => setFilterType(label)}
-        >
-            <Text style={[styles.filterText, filterType === label && styles.activeFilterText]}>{label}</Text>
-        </TouchableOpacity>
-    );
+    // Safe chart data preparation
+    const chartData = summary && summary.categoryBreakdown
+        ? Object.keys(summary.categoryBreakdown).map((key, index) => ({
+            name: key,
+            population: summary.categoryBreakdown[key].total,
+            color: theme.colors.chartColors[index % theme.colors.chartColors.length],
+            legendFontColor: theme.colors.textSecondary,
+            legendFontSize: 12
+        }))
+        : [];
 
     const renderItem = ({ item, index }) => (
-        <Animatable.View animation="fadeInUp" duration={400} delay={index * 50}>
+        <Animatable.View animation="fadeInUp" duration={400} delay={index * 100}>
             <TouchableOpacity
                 style={styles.expenseItem}
                 activeOpacity={0.7}
                 onPress={() => navigation.navigate('EditExpense', { expenseId: item._id })}
             >
-                <View style={[styles.iconContainer, { backgroundColor: '#1C1C1E' }]}>
-                    <Ionicons name="pricetag" size={18} color={theme.colors.primary} />
+                <View style={[styles.iconContainer]}>
+                    <Ionicons name="pricetag" size={20} color={theme.colors.primary} />
                 </View>
                 <View style={{ flex: 1, marginLeft: 15 }}>
                     <Text style={styles.expenseTitle}>{item.title}</Text>
                     <Text style={styles.expenseCategory}>{item.category} • {new Date(item.date).toLocaleDateString()}</Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={styles.expenseAmount}>${item.amount.toFixed(2)}</Text>
-                    <TouchableOpacity onPress={(e) => { e.stopPropagation(); deleteExpense(item._id); }}>
-                        <Ionicons name="trash-outline" size={16} color={theme.colors.error} style={{ marginTop: 5, opacity: 0.7 }} />
-                    </TouchableOpacity>
+                    <Text style={styles.expenseAmount}>₹{item.amount.toFixed(2)}</Text>
                 </View>
             </TouchableOpacity>
         </Animatable.View>
@@ -139,41 +89,77 @@ const DashboardScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
+            {/* App Bar */}
+            <LinearGradient
+                colors={[theme.colors.gradientStart, theme.colors.gradientEnd]}
+                style={styles.header}
+                start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+            >
                 <View style={styles.headerTop}>
-                    <View>
-                        <Text style={styles.greeting}>Total Spent ({filterType})</Text>
-                        <Text style={styles.totalAmount}>${totalAmount.toFixed(2)}</Text>
-                    </View>
-                    <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={styles.profileBtn}>
-                        <Ionicons name="person-circle" size={42} color={theme.colors.textSecondary} />
+                    <TouchableOpacity onPress={() => { }}>
+                        <Ionicons name="menu" size={28} color="#fff" />
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>Expense Tracker</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+                        <View style={styles.profileIcon}>
+                            <Text style={{ color: theme.colors.primary, fontWeight: 'bold' }}>{userInfo?.name?.charAt(0) || 'U'}</Text>
+                        </View>
                     </TouchableOpacity>
                 </View>
-
-                <View style={styles.filterContainer}>
-                    {['All', 'Daily', 'Monthly', 'Yearly'].map(type => <FilterTab key={type} label={type} />)}
-                </View>
-            </View>
+            </LinearGradient>
 
             <FlatList
                 data={expenses}
                 keyExtractor={item => item._id}
                 renderItem={renderItem}
-                contentContainerStyle={{ paddingBottom: 100, paddingTop: 10 }}
+                contentContainerStyle={{ paddingBottom: 100 }}
                 showsVerticalScrollIndicator={false}
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={fetchExpenses} tintColor={theme.colors.primary} />
+                    <RefreshControl refreshing={refreshing} onRefresh={fetchData} tintColor={theme.colors.primary} />
                 }
                 ListHeaderComponent={
-                    <View style={{ paddingHorizontal: 20 }}>
-                        {chartData.length > 0 ? (
+                    <View style={{ padding: 20 }}>
+                        {/* Total Spent Card */}
+                        <LinearGradient
+                            colors={[theme.colors.secondary, theme.colors.secondaryDark]}
+                            style={styles.totalCard}
+                        >
+                            <Text style={styles.totalLabel}>Total Spent This Month</Text>
+                            <Text style={styles.totalAmount}>₹ {summary?.totalSpent?.toFixed(2) || '0.00'}</Text>
+                            <View style={styles.trendContainer}>
+                                <Ionicons name="arrow-down" size={16} color={theme.colors.surface} />
+                                <Text style={styles.trendText}>12% from last month</Text>
+                            </View>
+                        </LinearGradient>
+
+                        {/* Quick Stats Row (Mock for now, could be dynamic) */}
+                        <View style={styles.statsRow}>
+                            <View style={styles.statCard}>
+                                <Ionicons name="fast-food" size={24} color={theme.colors.error} />
+                                <Text style={styles.statLabel}>Food</Text>
+                                <Text style={styles.statValue}>₹{summary?.categoryBreakdown?.Food?.total || 0}</Text>
+                            </View>
+                            <View style={styles.statCard}>
+                                <Ionicons name="car" size={24} color={theme.colors.secondary} />
+                                <Text style={styles.statLabel}>Trans</Text>
+                                <Text style={styles.statValue}>₹{summary?.categoryBreakdown?.Transport?.total || 0}</Text>
+                            </View>
+                            <View style={styles.statCard}>
+                                <Ionicons name="cart" size={24} color={theme.colors.warning} />
+                                <Text style={styles.statLabel}>Shop</Text>
+                                <Text style={styles.statValue}>₹{summary?.categoryBreakdown?.Shopping?.total || 0}</Text>
+                            </View>
+                        </View>
+
+                        {/* Chart Section */}
+                        {chartData.length > 0 && (
                             <View style={styles.chartContainer}>
-                                <Text style={styles.chartTitle}>Analysis</Text>
+                                <Text style={styles.sectionTitle}>Category Breakdown</Text>
                                 <PieChart
                                     data={chartData}
                                     width={screenWidth - 80}
                                     height={200}
-                                    chartConfig={{ color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})` }}
+                                    chartConfig={chartConfig}
                                     accessor={"population"}
                                     backgroundColor={"transparent"}
                                     paddingLeft={"15"}
@@ -181,13 +167,9 @@ const DashboardScreen = ({ navigation }) => {
                                     absolute
                                 />
                             </View>
-                        ) : (
-                            <View style={styles.noDataContainer}>
-                                <Ionicons name="stats-chart" size={50} color={theme.colors.border} />
-                                <Text style={styles.noDataText}>No data for this period</Text>
-                            </View>
                         )}
-                        <Text style={styles.listTitle}>Transactions</Text>
+
+                        <Text style={styles.sectionTitle}>Recent Expenses</Text>
                     </View>
                 }
             />
@@ -197,9 +179,7 @@ const DashboardScreen = ({ navigation }) => {
                 onPress={() => navigation.navigate('AddExpense')}
                 activeOpacity={0.8}
             >
-                <View style={styles.fabBtn}>
-                    <Ionicons name="add" size={32} color="#000" />
-                </View>
+                <Ionicons name="add" size={32} color="#fff" />
             </TouchableOpacity>
         </View>
     );
@@ -208,54 +188,57 @@ const DashboardScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: theme.colors.background },
     header: {
-        padding: 20, paddingTop: 50, backgroundColor: theme.colors.surface,
-        borderBottomWidth: 1, borderBottomColor: theme.colors.border
+        paddingTop: 50, paddingBottom: 20, paddingHorizontal: 20,
+        borderBottomLeftRadius: 20, borderBottomRightRadius: 20,
+        elevation: 4
     },
-    headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-    greeting: { color: theme.colors.textSecondary, fontSize: 14, fontWeight: '600', textTransform: 'uppercase' },
-    totalAmount: { color: '#fff', fontSize: 36, fontWeight: 'bold', fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto' },
+    headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    headerTitle: { fontSize: 22, fontWeight: '500', color: '#fff', fontFamily: theme.fonts.medium },
+    profileIcon: {
+        width: 32, height: 32, borderRadius: 16, backgroundColor: '#fff',
+        justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: 'rgba(255,255,255,0.5)'
+    },
 
-    filterContainer: { flexDirection: 'row', backgroundColor: theme.colors.card, borderRadius: 10, padding: 4, justifyContent: 'space-between' },
-    filterTab: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 8 },
-    activeFilterTab: { backgroundColor: theme.colors.primary }, // Or white? Primary stands out more.
-    filterText: { color: theme.colors.textSecondary, fontSize: 13, fontWeight: '600' },
-    activeFilterText: { color: '#fff', fontWeight: 'bold' },
+    totalCard: {
+        padding: 24, borderRadius: 16, elevation: 3, marginBottom: 20,
+        shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4
+    },
+    totalLabel: { color: 'rgba(255,255,255,0.9)', fontSize: 14, fontFamily: theme.fonts.regular },
+    totalAmount: { color: '#fff', fontSize: 36, fontFamily: theme.fonts.regular, marginVertical: 8 },
+    trendContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.2)', alignSelf: 'flex-start', padding: 4, borderRadius: 4 },
+    trendText: { color: '#fff', fontSize: 12, marginLeft: 4 },
+
+    statsRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
+    statCard: {
+        backgroundColor: theme.colors.surface, borderRadius: 12, padding: 12, width: '31%',
+        alignItems: 'center', elevation: 2, borderWidth: 1, borderColor: theme.colors.border
+    },
+    statLabel: { color: theme.colors.textSecondary, fontSize: 12, marginTop: 4 },
+    statValue: { color: theme.colors.text, fontSize: 16, fontWeight: 'bold', marginTop: 2 },
 
     chartContainer: {
-        backgroundColor: theme.colors.card,
-        borderRadius: 16,
-        padding: 20,
-        alignItems: 'center',
-        marginBottom: 20,
-        marginTop: 10
+        backgroundColor: theme.colors.surface, borderRadius: 16, padding: 20, marginBottom: 20,
+        elevation: 2, borderWidth: 1, borderColor: theme.colors.border
     },
-    chartTitle: { color: theme.colors.textSecondary, fontSize: 14, fontWeight: 'bold', marginBottom: 10, alignSelf: 'flex-start' },
-
-    listTitle: { fontSize: 18, fontWeight: 'bold', color: '#fff', marginBottom: 15 },
+    sectionTitle: { fontSize: 18, fontWeight: '500', color: theme.colors.text, marginBottom: 12, fontFamily: theme.fonts.medium },
 
     expenseItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 16,
-        backgroundColor: theme.colors.card,
-        borderRadius: 12,
-        marginBottom: 10
+        flexDirection: 'row', alignItems: 'center', padding: 16, backgroundColor: theme.colors.surface,
+        marginHorizontal: 20, marginBottom: 8, borderRadius: 12, elevation: 1,
+        borderWidth: 1, borderColor: theme.colors.border
     },
-    iconContainer: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center' },
-    expenseTitle: { fontSize: 16, fontWeight: '600', color: '#fff' },
-    expenseCategory: { fontSize: 13, color: theme.colors.textSecondary, marginTop: 4 },
-    expenseAmount: { fontSize: 16, fontWeight: 'bold', color: '#fff' },
-
-    noDataContainer: { alignItems: 'center', padding: 40, opacity: 0.5 },
-    noDataText: { color: theme.colors.textSecondary, fontSize: 16, marginTop: 10 },
-
-    fab: { position: 'absolute', right: 20, bottom: 30 },
-    fabBtn: {
-        width: 60, height: 60, borderRadius: 30, backgroundColor: theme.colors.primary,
-        justifyContent: 'center', alignItems: 'center', shadowColor: theme.colors.primary,
-        shadowOpacity: 0.5, shadowRadius: 10, shadowOffset: { width: 0, height: 4 },
-        elevation: 5
+    iconContainer: {
+        width: 40, height: 40, borderRadius: 20, backgroundColor: theme.colors.surfaceVariant,
+        justifyContent: 'center', alignItems: 'center'
     },
+    expenseTitle: { fontSize: 16, color: theme.colors.text, fontFamily: theme.fonts.medium },
+    expenseCategory: { fontSize: 12, color: theme.colors.textSecondary, marginTop: 2 },
+    expenseAmount: { fontSize: 16, color: theme.colors.primary, fontWeight: 'bold' },
+
+    fab: {
+        position: 'absolute', right: 20, bottom: 20, width: 56, height: 56, borderRadius: 28,
+        backgroundColor: theme.colors.primary, justifyContent: 'center', alignItems: 'center', elevation: 6
+    }
 });
 
 export default DashboardScreen;
