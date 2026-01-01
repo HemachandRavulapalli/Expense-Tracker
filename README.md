@@ -1,6 +1,8 @@
 <div align="center">
 
-  <h1>� Expense Tracker Pro</h1>
+  <img src="./Screenshots/logo.png" alt="Expense Tracker Pro Logo" width="120" style="border-radius: 20px" />
+
+  <h1>Expense Tracker Pro</h1>
 
   <p>
     <strong>A Premium, OLED-Ready Financial Companion for Modern Life</strong>
@@ -121,7 +123,7 @@ Featuring a **True Black (OLED)** theme, it saves battery on modern devices whil
   - **Database**: MongoDB Atlas
   - **ODM**: Mongoose
   - **Authentication**: JWT (JSON Web Tokens)
-  - **Security**: Colors, Dotenv
+  - **Security**: Cors, Dotenv
 </details>
 
 ---
@@ -207,5 +209,5 @@ Expense-Tracker/
 ---
 
 <div align="center">
-  <sub>Built with ❤️ for Mobile App Development Assignment</sub>
+  <sub>Built with ❤️ for Mobile App Development</sub>
 </div>
