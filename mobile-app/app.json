@@ -27,14 +27,17 @@
         "INTERNET",
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE"
+        "WRITE_EXTERNAL_STORAGE",
+        "NOTIFICATIONS"
       ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-font"
+      "expo-font",
+      "expo-notifications",
+      "@react-native-community/datetimepicker"
     ]
   }
 }

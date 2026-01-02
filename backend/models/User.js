@@ -51,6 +51,11 @@ const userSchema = new mongoose.Schema({
   monthlyBudget: {
     type: Number,
     default: 0
+  },
+  categoryBudgets: {
+    type: Map,
+    of: Number,
+    default: {}
   }
 }, { timestamps: true });
 

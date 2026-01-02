@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from '../api/axiosConfig';
+import { Alert } from 'react-native';
 
 export const AuthContext = createContext();
 
@@ -9,53 +10,30 @@ export const AuthProvider = ({ children }) => {
     const [userInfo, setUserInfo] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Global App Preferences
-    const [themeMode, setThemeMode] = useState('light'); // 'light' or 'dark'
-    const [currency, setCurrency] = useState('₹'); // Default INR
+    const [themeMode, setThemeMode] = useState('light');
+    const [currency, setCurrency] = useState('₹');
 
     const login = async (email, password) => {
         setIsLoading(true);
         try {
             const res = await axios.post('/auth/login', { email, password });
             const user = res.data.user;
+            const token = res.data.token;
+
             setUserInfo(user);
-            setUserToken(res.data.token);
+            setUserToken(token);
 
-            // Set User Preferences
-            setThemeMode(user.theme === 'dark' ? 'dark' : 'light');
-            setCurrency(user.currency === 'USD' ? '$' : '₹'); // Simple logic for now
+            if (user.theme) setThemeMode(user.theme === 'dark' ? 'dark' : 'light');
+            if (user.currency) setCurrency(user.currency);
 
-            await AsyncStorage.setItem('userToken', res.data.token);
+            await AsyncStorage.setItem('userToken', token);
             await AsyncStorage.setItem('userInfo', JSON.stringify(user));
         } catch (e) {
-            console.log(e);
-            alert('Login Failed: ' + (e.response?.data?.message || 'Something went wrong'));
-        }
-        setIsLoading(false);
-    };
-
-    const updateUserInfo = async (newUser) => {
-        setUserInfo(newUser);
-        setThemeMode(newUser.theme === 'dark' ? 'dark' : 'light');
-        // Update currency if we add it to user model fully later
-        await AsyncStorage.setItem('userInfo', JSON.stringify(newUser));
-    };
-
-    const isLoggedIn = async () => {
-        try {
-            setIsLoading(true);
-            let userToken = await AsyncStorage.getItem('userToken');
-            let userInfo = await AsyncStorage.getItem('userInfo');
-
-            if (userToken && userInfo) {
-                userInfo = JSON.parse(userInfo);
-                setUserToken(userToken);
-                setUserInfo(userInfo);
-                setThemeMode(userInfo.theme === 'dark' ? 'dark' : 'light');
-            }
+            console.log("Login Error Detailed:", e.message, e.code, e.config?.url);
+            const debugInfo = e.message === 'Network Error' ? '\n(Make sure your phone is on the same WiFi and firewall is off)' : '';
+            Alert.alert('Login Failed', (e.response?.data?.message || e.message || 'Something went wrong') + debugInfo);
+        } finally {
             setIsLoading(false);
-        } catch (e) {
-            console.log('isLogged in error ' + e);
         }
     };
 
@@ -63,40 +41,125 @@ export const AuthProvider = ({ children }) => {
         setIsLoading(true);
         try {
             const res = await axios.post('/auth/register', { name, email, password });
-            setUserInfo(res.data.user);
-            setUserToken(res.data.token);
-            await AsyncStorage.setItem('userToken', res.data.token);
-            await AsyncStorage.setItem('userInfo', JSON.stringify(res.data.user));
+            const user = res.data.user;
+            const token = res.data.token;
+
+            setUserInfo(user);
+            setUserToken(token);
+
+            await AsyncStorage.setItem('userToken', token);
+            await AsyncStorage.setItem('userInfo', JSON.stringify(user));
         } catch (e) {
-            console.log(e);
-            alert('Registration Failed: ' + (e.response?.data?.message || 'Something went wrong'));
+            console.log("Register Error:", e);
+            Alert.alert('Registration Failed', e.response?.data?.message || 'Something went wrong');
+        } finally {
+            setIsLoading(false);
         }
-        setIsLoading(false);
     };
 
     const logout = () => {
-        setIsLoading(true);
         setUserToken(null);
         setUserInfo(null);
         AsyncStorage.removeItem('userToken');
         AsyncStorage.removeItem('userInfo');
-        setIsLoading(false);
+    };
+
+    const updateUserInfo = async (newUser) => {
+        try {
+            // Get token from state or storage if missing
+            let token = userToken;
+            if (!token) {
+                token = await AsyncStorage.getItem('userToken');
+            }
+
+            if (!token) {
+                console.log("UpdateUserInfo: No token found");
+                return;
+            }
+
+            const res = await axios.put('/auth/profile', newUser, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            const updated = res.data;
+            const { token: newToken, ...infoWithoutToken } = updated;
+
+            const mergedInfo = { ...userInfo, ...infoWithoutToken };
+            setUserInfo(mergedInfo);
+
+            if (newToken) {
+                setUserToken(newToken);
+                await AsyncStorage.setItem('userToken', newToken);
+            }
+
+            if (updated.theme) setThemeMode(updated.theme === 'dark' ? 'dark' : 'light');
+            if (updated.currency) setCurrency(updated.currency);
+
+            await AsyncStorage.setItem('userInfo', JSON.stringify(mergedInfo));
+        } catch (e) {
+            console.log("Update Profile Error:", e.response?.status, e.response?.data);
+            if (e.response?.status === 401) {
+                Alert.alert("Session Expired", "Please login again.");
+                logout();
+            }
+        }
+    };
+
+    const changePassword = async (currentPassword, newPassword) => {
+        try {
+            let token = userToken || await AsyncStorage.getItem('userToken');
+            await axios.put('/auth/change-password', { currentPassword, newPassword }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            return { success: true };
+        } catch (e) {
+            return { success: false, message: e.response?.data?.message || "Failed to change password" };
+        }
     };
 
     const isLoggedIn = async () => {
         try {
             setIsLoading(true);
-            let userToken = await AsyncStorage.getItem('userToken');
-            let userInfo = await AsyncStorage.getItem('userInfo');
-            userInfo = JSON.parse(userInfo);
+            const token = await AsyncStorage.getItem('userToken');
+            const info = await AsyncStorage.getItem('userInfo');
 
-            if (userToken) {
-                setUserToken(userToken);
-                setUserInfo(userInfo);
+            if (token && info) {
+                // Try silent refresh/verify
+                try {
+                    const res = await axios.get('/auth/me', {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+
+                    // If success, we got a fresh token and user data
+                    const { user, token: newToken } = res.data;
+
+                    setUserToken(newToken);
+                    setUserInfo(user);
+
+                    if (user.theme) setThemeMode(user.theme === 'dark' ? 'dark' : 'light');
+                    if (user.currency) setCurrency(user.currency);
+
+                    await AsyncStorage.setItem('userToken', newToken);
+                    await AsyncStorage.setItem('userInfo', JSON.stringify(user));
+                } catch (verifyError) {
+                    console.log("Token verification failed. URL:", verifyError.config?.url, "Error:", verifyError.message);
+                    // Fallback to cached data if offline or verification fails (but doesn't 401)
+                    if (verifyError.response?.status === 401) {
+                        // Token truly dead
+                        logout();
+                    } else {
+                        const parsedInfo = JSON.parse(info);
+                        setUserToken(token);
+                        setUserInfo(parsedInfo);
+                        if (parsedInfo.theme) setThemeMode(parsedInfo.theme === 'dark' ? 'dark' : 'light');
+                        if (parsedInfo.currency) setCurrency(parsedInfo.currency);
+                    }
+                }
             }
-            setIsLoading(false);
         } catch (e) {
-            console.log('isLogged in error ' + e);
+            console.log('isLoggedIn Error:', e);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -104,15 +167,10 @@ export const AuthProvider = ({ children }) => {
         isLoggedIn();
     }, []);
 
-    const updateUserInfo = async (newUser) => {
-        setUserInfo(newUser);
-        await AsyncStorage.setItem('userInfo', JSON.stringify(newUser));
-    };
-
     return (
         <AuthContext.Provider value={{
             login, register, logout,
-            isLoading, userToken, userInfo, updateUserInfo,
+            isLoading, userToken, userInfo, updateUserInfo, changePassword,
             themeMode, setThemeMode,
             currency, setCurrency
         }}>

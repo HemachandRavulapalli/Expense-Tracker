@@ -1,82 +1,75 @@
+import { useContext } from 'react';
+import { AuthContext } from './context/AuthContext';
 
-
-export const theme = {
+export const lightTheme = {
     colors: {
-        // Primary Colors
-        primary: '#1F88E5',       // Professional Blue
+        primary: '#1F88E5',
         primaryDark: '#0D47A1',
-        primaryLight: '#42A5F5',
-
-        // Secondary Colors
-        secondary: '#00BCD4',     // Teal Accent
+        primaryLight: '#BBDEFB',
+        secondary: '#00BCD4',
         secondaryDark: '#0097A7',
-        secondaryLight: '#4DD0E1',
-
-        // Success/Alert Colors
+        secondaryLight: '#B2EBF2',
         success: '#4CAF50',
         warning: '#FF9800',
-        error: '#F44336',         // Error Red
+        error: '#F44336',
         info: '#2196F3',
-
-        // Neutral Colors
-        background: '#FAFAFA',    // Almost White
-        surface: '#FFFFFF',       // Pure White
+        background: '#FAFAFA',
+        surface: '#FFFFFF',
         surfaceVariant: '#F5F5F5',
         errorSurface: '#FFEBEE',
-
-        // Text Colors
-        text: '#1C1B1F',          // Dark Gray for primary text
-        textSecondary: '#79747E', // Medium Gray
-        textTertiary: '#B0B0B0',  // Light Gray for hints
-
-        // UI Elements
+        text: '#1C1B1F',
+        textSecondary: '#79747E',
+        textTertiary: '#B0B0B0',
         border: '#E0E0E0',
         divider: '#E0E0E0',
-
-        // Gradients (Material 3 style is flatter, but we'll keep these compatible)
         gradientStart: '#1F88E5',
         gradientEnd: '#0D47A1',
-
-        // Chart Palette (Material 3 Compliant)
-        chartColors: [
-            '#1F88E5', // Blue
-            '#00BCD4', // Teal
-            '#4CAF50', // Green
-            '#FF9800', // Orange
-            '#F44336', // Red
-            '#9C27B0', // Purple
-            '#673AB7', // Deep Purple
-            '#795548'  // Brown
-        ]
+        chartColors: ['#1F88E5', '#00BCD4', '#4CAF50', '#FF9800', '#F44336', '#9C27B0', '#673AB7', '#795548']
     },
     fonts: {
-        // Using Poppins matches the "Google Sans" feel reasonably well if we don't have the proprietary font
         regular: 'Poppins_400Regular',
         medium: 'Poppins_500Medium',
         bold: 'Poppins_700Bold',
         extraBold: 'Poppins_800ExtraBold'
-    },
-    spacing: {
-        xs: 4,
-        sm: 8,
-        md: 12,
-        lg: 16,
-        xl: 24,
-        xxl: 32,
-        xxxl: 48
-    },
-    borderRadius: {
-        xs: 4,
-        sm: 8,
-        md: 12,
-        lg: 16,
-        xl: 24,
-        full: 50
-    },
-    shadows: {
-        flat: { elevation: 0 },
-        sm: { elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.2, shadowRadius: 1.41 },
-        md: { elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.23, shadowRadius: 2.62 },
-        lg: { elevation: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.30, shadowRadius: 4.65 }
     }
+};
+
+export const darkTheme = {
+    colors: {
+        primary: '#42A5F5',
+        primaryDark: '#1F88E5',
+        primaryLight: '#0D47A1',
+        secondary: '#4DD0E1',
+        secondaryDark: '#00BCD4',
+        secondaryLight: '#006064',
+        success: '#81C784',
+        warning: '#FFB74D',
+        error: '#E57373',
+        info: '#64B5F6',
+        background: '#121212',
+        surface: '#1E1E1E',
+        surfaceVariant: '#2C2C2C',
+        errorSurface: '#3F2C2C',
+        text: '#E1E1E1',
+        textSecondary: '#A0A0A0',
+        textTertiary: '#666666',
+        border: '#333333',
+        divider: '#333333',
+        gradientStart: '#1E1E1E',
+        gradientEnd: '#121212',
+        chartColors: ['#90CAF9', '#80DEEA', '#81C784', '#FFB74D', '#E57373', '#CE93D8', '#B39DDB', '#A1887F']
+    },
+    fonts: {
+        regular: 'Poppins_400Regular',
+        medium: 'Poppins_500Medium',
+        bold: 'Poppins_700Bold',
+        extraBold: 'Poppins_800ExtraBold'
+    }
+};
+
+export const theme = lightTheme;
+
+export const useAppTheme = () => {
+    const { themeMode } = useContext(AuthContext);
+    return themeMode === 'dark' ? darkTheme : lightTheme;
 };

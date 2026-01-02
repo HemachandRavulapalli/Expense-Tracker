@@ -2,100 +2,78 @@
 
   <img src="./Screenshots/logo.png" alt="Expense Tracker Pro Logo" width="120" style="border-radius: 20px" />
 
-  <h1>Expense Tracker Pro</h1>
+  # 💎 Expense Tracker Pro
+  **A Premium, OLED-Ready Financial Ecosystem for Modern Mobility**
 
-  <p>
-    <strong>A Premium, OLED-Ready Financial Companion for Modern Life</strong>
-  </p>
+  [![React Native](https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactnative.dev/)
+  [![Expo](https://img.shields.io/badge/Expo-000020?style=for-the-badge&logo=expo&logoColor=white)](https://expo.dev/)
+  [![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+  [![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+  <br/>
+  [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/HemachandRavulapalli/Expense-Tracker/graphs/commit-activity)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-  <p>
-    <a href="#-overview">Overview</a> •
-    <a href="#-features">Features</a> •
-    <a href="#-screenshots">Screenshots</a> •
-    <a href="#-getting-started">Getting Started</a> •
-    <a href="#-tech-stack">Tech Stack</a> •
-    <a href="#-marketing">Author</a>
-  </p>
-
-  <p>
-    <img src="https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React Native" />
-    <img src="https://img.shields.io/badge/Expo-000020?style=for-the-badge&logo=expo&logoColor=white" alt="Expo" />
-    <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js" />
-    <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
-    <img src="https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express.js" />
-  </p>
 </div>
 
-<br />
+---
 
-## 📖 Overview
+## 🚀 Overview
 
-**Expense Tracker Pro** is not just another finance app; it's a Statement. Built with a "Mobile-First, Design-First" philosophy, this application leverages the power of the **MERN Stack** (MongoDB, Express, React Native, Node.js) to deliver a seamless, buttery-smooth experience.
+**Expense Tracker Pro** is a sophisticated financial management solution built for the modern user. Ditching the generic "spreadsheet" look, we've engineered a high-performance mobile application that focuses on **Aesthetics, Security, and Longevity**.
 
-Featuring a **True Black (OLED)** theme, it saves battery on modern devices while looking incredibly sleek. From real-time data visualization to secure authentication, every pixel has been crafted for delight.
+Built with the **MERN Stack**, it features a true OLED-optimized interface, bank-grade authentication, and intelligent data visualization.
 
 ---
 
-## ✨ Features
+## ✨ Premium Features
 
-<table>
-  <tr>
-    <td>🎨 <strong>OLED Dark Theme</strong></td>
-    <td>True black (#000000) UI optimized for modern displays, reducing eye strain and saving battery.</td>
-  </tr>
-  <tr>
-    <td>🔐 <strong>Secure Auth</strong></td>
-    <td>Bank-grade authentication using JWT and bcrypt encryption for your peace of mind.</td>
-  </tr>
-  <tr>
-    <td>📊 <strong>Smart Analytics</strong></td>
-    <td>Interactive Pie Charts with vibrant, distinct color palettes for instant financial clarity.</td>
-  </tr>
-  <tr>
-    <td>📅 <strong>Time Filters</strong></td>
-    <td>Instant toggling between <strong>Daily</strong>, <strong>Monthly</strong>, and <strong>Yearly</strong> spending views.</td>
-  </tr>
-  <tr>
-    <td>👤 <strong>Profile Management</strong></td>
-    <td>Full control over your data with Profile Editing and Data Export capabilities.</td>
-  </tr>
-  <tr>
-    <td>⚡ <strong>Performance</strong></td>
-    <td>Buttery smooth 60fps animations powered by <code>react-native-reanimated</code>.</td>
-  </tr>
-</table>
+### 🎨 Visual Excellence
+- **OLED Dark Mode**: True black design (#000000) for maximum battery efficiency and eye comfort.
+- **Glassmorphic Elements**: Subtle transulency and smooth gradients for a premium feel.
+- **Smooth Animations**: 60fps transitions powered by `react-native-reanimated` and `react-native-gesture-handler`.
+
+### 🔐 Advanced Security & Sessions
+- **30-Day Sessions**: Extended JWT lifespan reduces annoying frequent logouts.
+- **Silent Refresh**: Automatic background token rotation every time you open the app.
+- **Biometric Ready**: Architecture prepared for secure, rapid access.
+
+### 📊 Smart Finance
+- **Interactive Analytics**: Dynamic Pie Charts and lists that update in real-time.
+- **Granular Budgeting**: Set monthly overall limits or specific category-wise budgets.
+- **Budget Alerts**: Local notifications keep you informed before you overspend.
 
 ---
 
-## 📸 Screenshots
+## 📸 App Showcase
 
 <div align="center">
   <table>
     <tr>
       <td align="center">
-        <img src="./Screenshots/login.png" width="250" alt="Login Screen" /><br />
-        <b>Premium Login</b>
+        <img src="./Screenshots/login.png" width="220" alt="Login" /><br />
+        <sub><b>Premium Entry</b></sub>
       </td>
       <td align="center">
-        <img src="./Screenshots/signup.png" width="250" alt="Signup Screen" /><br />
-        <b>Secure Registration</b>
+        <img src="./Screenshots/signup.png" width="220" alt="Signup" /><br />
+        <sub><b>Secure Auth</b></sub>
       </td>
       <td align="center">
-        <img src="./Screenshots/Dashboard.png" width="250" alt="Dashboard" /><br />
-        <b>Analytics Dashboard</b>
+        <img src="./Screenshots/Dashboard.png" width="220" alt="Dashboard" /><br />
+        <sub><b>Analytics</b></sub>
       </td>
     </tr>
     <tr>
       <td align="center">
-        <img src="./Screenshots/Add.png" width="250" alt="Add Expense" /><br />
-        <b>Add Transaction</b>
+        <img src="./Screenshots/Drawer.png" width="220" alt="Drawer" /><br />
+        <sub><b>Dynamic Menu</b></sub>
       </td>
       <td align="center">
-        <img src="./Screenshots/profile.png" width="250" alt="Profile" /><br />
-        <b>User Profile</b>
+        <img src="./Screenshots/Add.png" width="220" alt="Add Expense" /><br />
+        <sub><b>Quick Entry</b></sub>
       </td>
       <td align="center">
-        <b>...and more!</b>
+        <img src="./Screenshots/settings.png" width="220" alt="Settings" /><br />
+        <sub><b>Smart Limits</b></sub>
       </td>
     </tr>
   </table>
@@ -103,111 +81,58 @@ Featuring a **True Black (OLED)** theme, it saves battery on modern devices whil
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Technical Architecture
 
-<details>
-  <summary><strong>📱 Mobile App (Frontend)</strong></summary>
-  
-  - **Core**: React Native (Expo SDK 50)
-  - **Styling**: `StyleSheet` & `expo-linear-gradient`
-  - **Typography**: Poppins (Google Fonts)
-  - **Navigation**: React Navigation v6
-  - **Charts**: `react-native-chart-kit`
-  - **State Management**: React Context API
-</details>
+### **Frontend Mobility**
+- **Framework**: Expo SDK 54 (Latest)
+- **Engine**: React Native 0.81 (New Architecture Enabled)
+- **Navigation**: React Navigation v7 (Stack, Tabs, & Drawer)
+- **State**: React Context API with persistent AsyncStorage.
 
-<details>
-  <summary><strong>🔌 API (Backend)</strong></summary>
-  
-  - **Server**: Node.js & Express
-  - **Database**: MongoDB Atlas
-  - **ODM**: Mongoose
-  - **Authentication**: JWT (JSON Web Tokens)
-  - **Security**: Cors, Dotenv
-</details>
+### **Backend Infrastructure**
+- **Language**: Node.js & Express
+- **Database**: MongoDB (NoSQL) for flexible schema.
+- **Auth**: JWT with `bcryptjs` hashing.
+- **Hosting**: Prepared for Vercel/Render deployment.
 
 ---
 
-## 🚀 Getting Started
+## ⚙️ Installation & Setup
 
-Follow these steps to get the project running on your local machine.
-
-### Prerequisites
-
-*   **Node.js** (v16.0.0 or higher)
-*   **npm** or **yarn**
-*   **Expo Go** app on your phone (or Android Studio/Xcode for emulation)
-
-### Installation
-
-#### 1. Clone the Repository
+### **1. Clone the Source**
 ```bash
 git clone https://github.com/HemachandRavulapalli/Expense-Tracker.git
 cd Expense-Tracker
 ```
 
-#### 2. Backend Setup
+### **2. Backend ignition**
 ```bash
 cd backend
 npm install
-
-# Create .env file
-echo "PORT=5000" > .env
-echo "MONGO_URI=your_mongodb_connection_string" >> .env
-echo "JWT_SECRET=your_jwt_secret" >> .env
-
-# Start Server
+# Create .env with MONGO_URI and JWT_SECRET
 npm start
 ```
 
-#### 3. Frontend Setup
+### **3. Mobile Bootup**
 ```bash
 cd mobile-app
 npm install
-
-# Start App
-npx expo start
-```
-
-> **Note**: Use the `w` key in the terminal to open the web version, or scan the QR code with your phone.
-
----
-
-## 📂 Project Structure
-
-```bash
-Expense-Tracker/
-├── 📂 backend/                 # Node.js API Server
-│   ├── 📂 models/             # Database Schemas
-│   ├── 📂 routes/             # REST API Routes
-│   └── 📄 server.js           # Server Entry Point
-│
-├── 📂 mobile-app/              # React Native Client
-│   ├── 📂 api/                # API Config (Axios)
-│   ├── 📂 assets/             # Images & Fonts
-│   ├── 📂 context/            # Global State (Auth)
-│   ├── 📂 screens/            # UI Screens
-│   ├── 📄 App.js              # Main Application
-│   └── 📄 theme.js            # Design System
-│
-└── 📂 Screenshots/             # Documentation Images
+npx expo start --go
 ```
 
 ---
 
-## 🔗 Author
+## 🌍 Connect With Me
 
 <div align="center">
+
+**Hemachand Ravulapalli**
+
+[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/HemachandRavulapalli)
+[![LinkedIn](https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/rhemachand/)
+
+---
   
-  **Hemachand Ravulapalli**
+<sub>Built with precision for the next generation of financial tracking.</sub>
 
-  [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/HemachandRavulapalli)
-  [![LinkedIn](https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/rhemachand/)
-
-</div>
-
----
-
-<div align="center">
-  <sub>Built with ❤️ for Mobile App Development</sub>
 </div>

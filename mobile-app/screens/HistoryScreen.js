@@ -1,19 +1,15 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
 import axios from '../api/axiosConfig';
 import { Ionicons } from '@expo/vector-icons';
-import { theme } from '../theme';
+import { useAppTheme } from '../theme';
 
-const HistoryScreen = () => {
-    const { userToken, currency, themeMode } = useContext(AuthContext);
+const HistoryScreen = ({ navigation }) => {
+    const { userToken, currency } = useContext(AuthContext);
+    const theme = useAppTheme();
     const [expenses, setExpenses] = useState([]);
     const [loading, setLoading] = useState(true);
-
-    const isDark = themeMode === 'dark';
-    const bgColor = isDark ? '#121212' : theme.colors.background;
-    const textColor = isDark ? '#FFF' : theme.colors.text;
-    const cardColor = isDark ? '#1E1E1E' : theme.colors.surface;
 
     useEffect(() => {
         fetchHistory();
@@ -25,7 +21,6 @@ const HistoryScreen = () => {
             const res = await axios.get('/expenses', {
                 headers: { Authorization: `Bearer ${userToken}` }
             });
-            // Reverse to show newest first
             setExpenses(res.data.data.reverse());
         } catch (e) {
             console.log(e);
@@ -35,13 +30,13 @@ const HistoryScreen = () => {
     };
 
     const renderItem = ({ item }) => (
-        <View style={[styles.card, { backgroundColor: cardColor }]}>
-            <View style={styles.iconBox}>
+        <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+            <View style={[styles.iconBox, { backgroundColor: theme.colors.primaryLight }]}>
                 <Ionicons name="receipt-outline" size={24} color={theme.colors.primary} />
             </View>
             <View style={{ flex: 1, marginLeft: 12 }}>
-                <Text style={[styles.title, { color: textColor }]}>{item.title}</Text>
-                <Text style={styles.date}>{new Date(item.date).toLocaleDateString()}</Text>
+                <Text style={[styles.title, { color: theme.colors.text }]}>{item.title}</Text>
+                <Text style={[styles.date, { color: theme.colors.textSecondary }]}>{new Date(item.date).toLocaleDateString()}</Text>
             </View>
             <Text style={[styles.amount, { color: theme.colors.error }]}>
                 -{currency}{item.amount}
@@ -50,12 +45,17 @@ const HistoryScreen = () => {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: bgColor }]}>
-            <View style={[styles.header, { backgroundColor: cardColor }]}>
-                <Text style={[styles.headerTitle, { color: textColor }]}>History</Text>
+        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+            <View style={[styles.header, { backgroundColor: theme.colors.surface }]}>
+                <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ position: 'absolute', left: 16, top: 45 }}>
+                    <Ionicons name="menu-outline" size={32} color={theme.colors.text} />
+                </TouchableOpacity>
+                <Text style={[styles.headerTitle, { color: theme.colors.text }]}>Transaction History</Text>
             </View>
             {loading ? (
-                <View style={styles.center}><ActivityIndicator color={theme.colors.primary} /></View>
+                <View style={[styles.center, { backgroundColor: theme.colors.background }]}>
+                    <ActivityIndicator color={theme.colors.primary} />
+                </View>
             ) : (
                 <FlatList
                     data={expenses}
@@ -73,18 +73,18 @@ const styles = StyleSheet.create({
     container: { flex: 1 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     header: {
-        padding: 16, paddingTop: 50, elevation: 2, alignItems: 'center', justifyContent: 'center'
+        padding: 16, paddingTop: 50, elevation: 2, alignItems: 'center', justifyContent: 'center', height: 100
     },
     headerTitle: { fontSize: 18, fontWeight: 'bold' },
     card: {
         flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 12, marginBottom: 12, elevation: 1
     },
     iconBox: {
-        width: 40, height: 40, borderRadius: 20, backgroundColor: theme.colors.primaryLight,
+        width: 40, height: 40, borderRadius: 20,
         justifyContent: 'center', alignItems: 'center'
     },
     title: { fontSize: 16, fontWeight: '500' },
-    date: { fontSize: 12, color: '#888' },
+    date: { fontSize: 12 },
     amount: { fontSize: 16, fontWeight: 'bold' }
 });
 

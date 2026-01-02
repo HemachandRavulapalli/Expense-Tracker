@@ -1,12 +1,12 @@
 import React, { useContext, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
-import axios from '../api/axiosConfig';
 import { Ionicons } from '@expo/vector-icons';
-import { theme } from '../theme';
+import { useAppTheme } from '../theme';
 
 const EditProfileScreen = ({ navigation }) => {
-    const { userToken, userInfo, updateUserInfo } = useContext(AuthContext);
+    const { userInfo, updateUserInfo } = useContext(AuthContext);
+    const theme = useAppTheme();
     const [name, setName] = useState(userInfo?.name || '');
     const [email, setEmail] = useState(userInfo?.email || '');
     const [loading, setLoading] = useState(false);
@@ -14,11 +14,7 @@ const EditProfileScreen = ({ navigation }) => {
     const handleUpdate = async () => {
         setLoading(true);
         try {
-            const res = await axios.put('/auth/profile', { name, email }, {
-                headers: { Authorization: `Bearer ${userToken}` }
-            });
-
-            updateUserInfo(res.data); // Update context
+            await updateUserInfo({ ...userInfo, name, email });
             Alert.alert('Success', 'Profile updated successfully');
             navigation.goBack();
         } catch (e) {
@@ -29,41 +25,38 @@ const EditProfileScreen = ({ navigation }) => {
     };
 
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
+        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+            <View style={[styles.header, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.border }]}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Edit Profile</Text>
+                <Text style={[styles.headerTitle, { color: theme.colors.text }]}>Edit Profile</Text>
                 <TouchableOpacity onPress={handleUpdate} disabled={loading}>
-                    {loading ? <ActivityIndicator size="small" color={theme.colors.primary} /> : <Text style={styles.saveText}>Save</Text>}
+                    {loading ? <ActivityIndicator size="small" color={theme.colors.primary} /> : <Text style={[styles.saveText, { color: theme.colors.primary }]}>Save</Text>}
                 </TouchableOpacity>
             </View>
 
             <ScrollView contentContainerStyle={styles.content}>
                 <View style={styles.avatarContainer}>
-                    <View style={styles.avatar}>
-                        <Text style={styles.avatarText}>{name.charAt(0) || 'U'}</Text>
+                    <View style={[styles.avatar, { backgroundColor: theme.colors.primaryLight }]}>
+                        <Text style={[styles.avatarText, { color: theme.colors.primaryDark }]}>{name.charAt(0) || 'U'}</Text>
                     </View>
-                    <TouchableOpacity style={styles.changePhotoBtn}>
-                        <Text style={styles.changePhotoText}>Change Profile Photo</Text>
-                    </TouchableOpacity>
                 </View>
 
-                <Text style={styles.label}>Full Name</Text>
-                <View style={styles.inputContainer}>
+                <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Full Name</Text>
+                <View style={[styles.inputContainer, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, { color: theme.colors.text }]}
                         value={name}
                         onChangeText={setName}
                         placeholderTextColor={theme.colors.textTertiary}
                     />
                 </View>
 
-                <Text style={styles.label}>Email Address</Text>
-                <View style={styles.inputContainer}>
+                <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Email Address</Text>
+                <View style={[styles.inputContainer, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, { color: theme.colors.text }]}
                         value={email}
                         onChangeText={setEmail}
                         keyboardType="email-address"
@@ -77,32 +70,26 @@ const EditProfileScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.colors.background },
+    container: { flex: 1 },
     header: {
         flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-        padding: 16, borderBottomWidth: 1, borderBottomColor: theme.colors.border,
-        backgroundColor: theme.colors.surface, paddingTop: 50
+        padding: 16, borderBottomWidth: 1, paddingTop: 50
     },
-    headerTitle: { fontSize: 18, fontWeight: '500', color: theme.colors.text },
-    saveText: { fontSize: 16, color: theme.colors.primary, fontWeight: 'bold' },
-
+    headerTitle: { fontSize: 18, fontWeight: 'bold' },
+    saveText: { fontSize: 16, fontWeight: 'bold' },
     content: { padding: 24 },
     avatarContainer: { alignItems: 'center', marginBottom: 32 },
     avatar: {
-        width: 100, height: 100, borderRadius: 50, backgroundColor: theme.colors.primaryLight,
+        width: 100, height: 100, borderRadius: 50,
         justifyContent: 'center', alignItems: 'center', marginBottom: 16
     },
-    avatarText: { fontSize: 40, fontWeight: 'bold', color: theme.colors.primaryDark },
-    changePhotoBtn: {},
-    changePhotoText: { color: theme.colors.primary, fontSize: 14, fontWeight: '500' },
-
-    label: { fontSize: 14, color: theme.colors.textSecondary, marginBottom: 8, marginLeft: 4 },
+    avatarText: { fontSize: 40, fontWeight: 'bold' },
+    label: { fontSize: 14, marginBottom: 8, marginLeft: 4 },
     inputContainer: {
-        flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.surface,
-        borderWidth: 1, borderColor: theme.colors.border, borderRadius: 8,
-        paddingHorizontal: 12, height: 56, marginBottom: 24
+        flexDirection: 'row', alignItems: 'center',
+        borderWidth: 1, borderRadius: 8, paddingHorizontal: 12, height: 56, marginBottom: 24
     },
-    input: { flex: 1, color: theme.colors.text, fontSize: 16 },
+    input: { flex: 1, fontSize: 16 },
 });
 
 export default EditProfileScreen;
