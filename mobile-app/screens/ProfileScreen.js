@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme';
 
 const ProfileScreen = ({ navigation }) => {
-    const { logout, userInfo, updateUserInfo } = useContext(AuthContext);
+    const { logout, userInfo, updateUserInfo, currency, setCurrency } = useContext(AuthContext);
 
     // Local State (initialized from userInfo if available, else defaults)
     const [isDark, setIsDark] = useState(userInfo?.theme === 'dark');
@@ -20,26 +20,37 @@ const ProfileScreen = ({ navigation }) => {
         }
     };
 
+    const handleCurrencyToggle = () => {
+        const currencies = ['₹', '$', '€', '£', '¥'];
+        const nextIdx = (currencies.indexOf(currency) + 1) % currencies.length;
+        const nextCurr = currencies[nextIdx];
+        setCurrency(nextCurr); // Update globally
+        // Ideally save to backend too: updateUserInfo({...userInfo, currency: nextCurr})
+    };
+
     const handleExport = () => {
         Alert.alert("Export Data", "Your expenses have been exported to CSV (Mock). Check your email.");
     };
 
-    const SettingItem = ({ icon, label, hasArrow, isToggle, value, onToggle }) => (
+    const SettingItem = ({ icon, label, hasArrow, isToggle, value, onToggle, valueText }) => (
         <View style={styles.settingItem}>
             <View style={styles.settingLeft}>
                 <Ionicons name={icon} size={24} color={theme.colors.textSecondary} />
                 <Text style={styles.settingLabel}>{label}</Text>
             </View>
-            {isToggle ? (
-                <Switch
-                    value={value}
-                    onValueChange={onToggle}
-                    trackColor={{ false: theme.colors.border, true: theme.colors.primaryLight }}
-                    thumbColor={value ? theme.colors.primary : '#f4f3f4'}
-                />
-            ) : (
-                hasArrow && <Ionicons name="chevron-forward" size={20} color={theme.colors.textTertiary} />
-            )}
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                {valueText && <Text style={{ marginRight: 10, color: theme.colors.primary, fontWeight: 'bold' }}>{valueText}</Text>}
+                {isToggle ? (
+                    <Switch
+                        value={value}
+                        onValueChange={onToggle}
+                        trackColor={{ false: theme.colors.border, true: theme.colors.primaryLight }}
+                        thumbColor={value ? theme.colors.primary : '#f4f3f4'}
+                    />
+                ) : (
+                    hasArrow && <Ionicons name="chevron-forward" size={20} color={theme.colors.textTertiary} />
+                )}
+            </View>
         </View>
     );
 
@@ -78,7 +89,9 @@ const ProfileScreen = ({ navigation }) => {
                         onToggle={(val) => toggleSwitch(val, setIsDark, 'theme')}
                     />
                     <View style={styles.divider} />
-                    <SettingItem icon="cash-outline" label="Currency (₹)" hasArrow />
+                    <TouchableOpacity onPress={handleCurrencyToggle}>
+                        <SettingItem icon="cash-outline" label="Currency" valueText={currency} hasArrow />
+                    </TouchableOpacity>
                 </View>
 
                 {/* Notifications */}

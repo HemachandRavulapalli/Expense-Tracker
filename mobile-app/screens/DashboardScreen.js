@@ -96,14 +96,12 @@ const DashboardScreen = ({ navigation }) => {
                 start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
             >
                 <View style={styles.headerTop}>
-                    <TouchableOpacity onPress={() => navigation.openDrawer()}>
-                        <Ionicons name="menu" size={28} color="#fff" />
-                    </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Expense Tracker</Text>
+                    <View>
+                        <Text style={{ color: '#eee', fontSize: 12 }}>Welcome Back,</Text>
+                        <Text style={styles.headerTitle}>{userInfo?.name?.split(' ')[0] || 'User'}</Text>
+                    </View>
                     <View style={{ flexDirection: 'row', gap: 12 }}>
-                        <TouchableOpacity onPress={() => navigation.navigate('Statistics')}>
-                            <Ionicons name="stats-chart" size={24} color="#fff" />
-                        </TouchableOpacity>
+                        {/* Profile Tab exists, but keeping avatar is nice visual */}
                         <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
                             <View style={styles.profileIcon}>
                                 <Text style={{ color: theme.colors.primary, fontWeight: 'bold' }}>{userInfo?.name?.charAt(0) || 'U'}</Text>
