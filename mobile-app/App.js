@@ -1,41 +1,54 @@
 import React, { useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, View, Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_700Bold, Poppins_800ExtraBold } from '@expo-google-fonts/poppins';
 
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import DashboardScreen from './screens/DashboardScreen';
+import StatisticsScreen from './screens/StatisticsScreen';
+import HistoryScreen from './screens/HistoryScreen';
+import ProfileScreen from './screens/ProfileScreen';
 import AddExpenseScreen from './screens/AddExpenseScreen';
 import EditExpenseScreen from './screens/EditExpenseScreen';
-import ProfileScreen from './screens/ProfileScreen';
 import EditProfileScreen from './screens/EditProfileScreen';
-import StatisticsScreen from './screens/StatisticsScreen';
 import { theme } from './theme';
 
 const Stack = createStackNavigator();
-const Drawer = createDrawerNavigator();
+const Tab = createBottomTabNavigator();
 
-const HomeDrawer = () => {
+const HomeTabs = () => {
   return (
-    <Drawer.Navigator screenOptions={{
-      headerShown: false,
-      drawerActiveTintColor: theme.colors.primary,
-      drawerInactiveTintColor: theme.colors.textSecondary,
-      drawerLabelStyle: { fontFamily: 'Poppins_500Medium' }
-    }}>
-      <Drawer.Screen
-        name="Dashboard"
-        component={DashboardScreen}
-        options={{ title: 'Home' }}
-      />
-      <Drawer.Screen name="Statistics" component={StatisticsScreen} />
-      <Drawer.Screen name="Profile" component={ProfileScreen} />
-    </Drawer.Navigator>
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: 'gray',
+        tabBarStyle: {
+          height: 60, paddingBottom: 10, paddingTop: 10,
+          backgroundColor: '#fff', borderTopWidth: 0, elevation: 10
+        },
+        tabBarLabelStyle: { fontFamily: 'Poppins_500Medium', fontSize: 10 },
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+          if (route.name === 'Dashboard') iconName = focused ? 'home' : 'home-outline';
+          else if (route.name === 'Analytics') iconName = focused ? 'pie-chart' : 'pie-chart-outline';
+          else if (route.name === 'History') iconName = focused ? 'list' : 'list-outline';
+          else if (route.name === 'Profile') iconName = focused ? 'person' : 'person-outline';
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+      })}
+    >
+      <Tab.Screen name="Dashboard" component={DashboardScreen} />
+      <Tab.Screen name="Analytics" component={StatisticsScreen} />
+      <Tab.Screen name="History" component={HistoryScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+    </Tab.Navigator>
   );
 };
 
@@ -43,7 +56,6 @@ const AppNav = () => {
   const { isLoading, userToken } = useContext(AuthContext);
 
   if (isLoading) {
-    console.log("AppNav: Rendering Loading Spinner");
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.background }}>
         <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -60,7 +72,7 @@ const AppNav = () => {
       }}>
         {userToken !== null ? (
           <>
-            <Stack.Screen name="HomeDrawer" component={HomeDrawer} />
+            <Stack.Screen name="HomeTabs" component={HomeTabs} />
             <Stack.Screen
               name="AddExpense"
               component={AddExpenseScreen}
@@ -96,8 +108,6 @@ const AppNav = () => {
 };
 
 export default function App() {
-  console.log("App: Component Mounting...");
-
   let [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_500Medium,
